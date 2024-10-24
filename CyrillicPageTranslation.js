@@ -1,15 +1,22 @@
 // ==UserScript==
 // @name         Cyrillic Page Transliteration
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  Transliterate English characters into Cyrillic in real-time and across page content without affecting page structure or styles
 // @author       Comrade_Aleks
 // @match        *://*/*
+// @exclude      *://www.google.com/search*
+// @exclude      *://www.google.*/*q=*
 // @grant        none
 // ==/UserScript==
 
 (function() {
     'use strict';
+
+    // Exclude Google Search pages
+    if (window.location.hostname.includes('google') && window.location.pathname.includes('/search')) {
+        return;
+    }
 
     // Extended mapping including multi-character sequences
     const multiCharMapping = {
@@ -32,7 +39,7 @@
         'v': 'в', 'w': 'в', // Both 'v' and 'w' → 'в'
         'y': 'ы', 'z': 'з',
         'æ': 'э', 'ø': 'ё', 'å': 'о', // Norwegian letters
-        "'": 'ь', // Special mapping for the quotation mark
+        '"': 'ь', // Special mapping for the quotation mark
     };
 
     // Function to transliterate text considering multi-character sequences
@@ -160,4 +167,23 @@
 
     // Start observing for dynamic content changes
     observePageChanges();
+
+    // Handle shadow DOM (used by some pages)
+    function handleShadowDOM(node) {
+        if (node.shadowRoot) {
+            processTextNodes(node.shadowRoot);
+            node.shadowRoot.querySelectorAll('input[type="text"], textarea').forEach(input => {
+                input.addEventListener('input', handleRealTimeInput);
+            });
+        }
+    }
+
+    // Observe shadow DOMs for any newly attached shadow roots
+    const shadowObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach(handleShadowDOM);
+        });
+    });
+    shadowObserver.observe(document.body, { childList: true, subtree: true });
+
 })();
