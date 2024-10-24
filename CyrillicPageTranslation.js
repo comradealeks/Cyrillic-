@@ -31,7 +31,8 @@
         'o': 'о', 'p': 'п', 'r': 'р', 's': 'с', 't': 'т', 'u': 'у',
         'v': 'в', 'w': 'в', // Both 'v' and 'w' → 'в'
         'y': 'ы', 'z': 'з',
-        '"': 'ь', // Special mapping for the quotation mark
+        'æ': 'э', 'ø': 'ё', 'å': 'о', // Norwegian letters
+        "'": 'ь', // Special mapping for the quotation mark
     };
 
     // Function to transliterate text considering multi-character sequences
